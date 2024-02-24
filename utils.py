@@ -1,7 +1,13 @@
 
 import subprocess
-import re
+import json
+import jsonschema
 import os
+import sys
+import yaml
+import re
+import glob
+
 def execute_command(command):
     """
     Executes a command on the terminal and returns its output.
@@ -125,7 +131,7 @@ def run_exploit(exploit_executable, vector, exploit_id):
 
     try:
         print(f"Running exploit: {exploit_executable}")
-        output = utils.execute_command(run_command)
+        output = execute_command(run_command)
         print(output)
     except Exception as e:
         print(f"Failed to run exploit {exploit_executable}: {e}")
@@ -135,3 +141,35 @@ def am_i_root():
         print("I am root now!")
     else:
         print("Still not root.")
+
+
+
+def parse_yaml_from_md(md_path):
+    """Extracts and parses the YAML front matter from a Markdown file."""
+    with open(md_path, 'r') as file:
+        content = file.read()
+        # Assuming the YAML front matter is at the start of the file and delimited by '---'
+        yaml_content = content.split('---')[1]
+        return yaml.load(yaml_content, Loader=yaml.SafeLoader)
+
+
+def convert_md_to_json(md_path, json_path):
+    """Converts a Markdown file to JSON format based on the specified schema."""
+    data = parse_yaml_from_md(md_path)
+    # Here you would transform 'data' as needed to fit your JSON schema
+    # This step is highly dependent on the structure of your YAML and your schema requirements
+
+    with open(json_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+
+def iterate_and_convert_md_to_json(directory):
+    """Iterates through all Markdown files in the directory and converts them to JSON."""
+    for md_file in glob.glob(os.path.join(directory, '*.md')):
+        # Generate the path for the corresponding JSON file
+        json_file_name = os.path.splitext(os.path.basename(md_file))[0] + '.json'
+        json_file_path = os.path.join(directory, json_file_name)
+
+        # Convert the Markdown file to JSON
+        convert_md_to_json(md_file, json_file_path)
+        print(f"Converted {md_file} to JSON at {json_file_path}")

@@ -20,6 +20,7 @@ def main():
 
     print("\nSearching for exploits for the kernel version...")
     quary = "linux kernel " + kernel_version
+    print(quary)
     exploits_output = utils.search_exploits(quary)
 
     exploit_ids = utils.extract_exploit_ids(exploits_output)

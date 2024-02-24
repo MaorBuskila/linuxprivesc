@@ -8,13 +8,12 @@ import kernel
 """
 ***************************************************************************************
 TODO:
-replace the method the we use with searchsploit - the searching dholunt be on the victim machine.
+replace the method the we use with searchsploit - the searching sholudnt be on the victim machine.
 Decied if we want to do a real check by exploit the vul and report it to the user
 Check how to intergrate GTFOBins
 add Vector attacks:
     SUDO
     SUID (Set User ID):
-    Capabilities:
     Cron Jobs:
     PATH:
     NFS (Network File System)
@@ -22,9 +21,36 @@ add Vector attacks:
 
 """
 
+
+def clone_gtfo_bins(repo_url, clone_directory):
+    """
+    Clones the GTFOBins GitHub repository into a specified directory.
+
+    :param repo_url: The URL of the GTFOBins GitHub repository.
+    :param clone_directory: The local directory where the repository should be cloned.
+    """
+    try:
+        # Prepare the git clone command
+        command = ["git", "clone", repo_url, clone_directory]
+
+        # Execute the git clone command
+        utils.execute_command(command)
+        print(f"Successfully cloned GTFOBins into {clone_directory}")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to clone GTFOBins repository: {e}")
+
+
+# Example usage
+
+
 def main():
 
+    REPO_URL = "https://github.com/GTFOBins/GTFOBins.github.io.git"
+    CLONE_DIRECTORY = "./GTFOBins"  # Specify your desired clone directory
+    clone_gtfo_bins(REPO_URL, CLONE_DIRECTORY)
 
+    directory = 'GTFOBins/_gtfobins'  # Update this path to your directory
+    utils. iterate_and_convert_md_to_json(directory)
     #SUDO
 
 
