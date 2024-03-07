@@ -1,22 +1,22 @@
 import utils
 import re
 import json
-
+from subprocess import run, PIPE
 def get_binaries_with_capabilities():
     """
     Lists binaries with special capabilities set, excluding the /mnt directory.
     """
     # Command to find files outside /mnt and check their capabilities
-    command = "find / -path /mnt -prune -o -type f -print 2>/dev/null | xargs getcap 2>/dev/null"
-    stdout = utils.execute_command(command)
-
+    command = "ls -l"
+    stdout  = utils.execute_command(command)
+    # print(stdout)
     # Regex pattern to capture both binary path and full capabilities
-    pattern = re.compile(r'^(?P<binary>[^\s]+) (?P<capability>cap_[^\s]+)', re.MULTILINE)
-    matches = pattern.findall(stdout)
+    # pattern = re.compile(r'^(?P<binary>[^\s]+) (?P<capability>cap_[^\s]+)', re.MULTILINE)
+    # matches = pattern.findall(stdout)
 
     # Convert matches to a list of tuples (binary, full capability string)
-    binaries = [(match[0], match[1]) for match in matches]
-    return binaries
+    # binaries = [(match[0], match[1]) for match in matches]
+    # return binaries
 
 def check_for_cap_setuid(binaries):
     """

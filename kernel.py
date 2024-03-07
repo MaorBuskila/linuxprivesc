@@ -32,6 +32,13 @@ def main():
     else:
         print("No exploits found for the kernel version.")
 
+   # exploit_file = 'kernel_exploits/50808.c'  # Placeholder for the actual exploit file name
+    # if os.path.exists(exploit_file):
+    #     compiled_exploit = compile_exploit(exploit_file)
+    #     run_exploit(compiled_exploit or exploit_file, 'Kernel', '50808')
+    #     am_i_root()
+    # else:
+    #     print(f"Exploit file {exploit_file} not found. Please download it manually.")
 
 if __name__ == "__main__":
     main()

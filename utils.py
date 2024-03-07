@@ -8,14 +8,26 @@ import yaml
 import re
 import glob
 
+
 def execute_command(command):
     """
     Executes a command on the terminal and returns its output.
+    Waits for the command to complete or times out after 3 minutes.
     """
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    process.wait()
-    stdout, stderr = process.communicate()
-    return stdout
+    try:
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate(timeout=180)  # Wait for up to 3 minutes
+        if stderr:
+            print("stderr: " + stderr)
+        if stdout:
+            print("stdout: " + stdout)
+        return stdout
+    except subprocess.TimeoutExpired:
+        process.kill()  # Ensure the process is terminated after timeout
+        _, _ = process.communicate()  # Clean up
+        print("Command timed out")
+        return None
+    
 def search_exploits(quary):
     """
     Searches for exploits using searchsploit based on the kernel version.
@@ -172,4 +184,4 @@ def iterate_and_convert_md_to_json(directory):
 
         # Convert the Markdown file to JSON
         convert_md_to_json(md_file, json_file_path)
-        print(f"Converted {md_file} to JSON at {json_file_path}")
+        # print(f"Converted {md_file} to JSON at {json_file_path}")
