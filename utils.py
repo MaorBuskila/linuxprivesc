@@ -9,11 +9,14 @@ import re
 import glob
 
 
-def execute_command(command):
+def execute_command(command, ssh_client=None):
     """
     Executes a command on the terminal and returns its output.
     Waits for the command to complete or times out after 3 minutes.
     """
+    if ssh_client:
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        return stdout.read().decode()
     try:
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = process.communicate(timeout=180)  # Wait for up to 3 minutes
@@ -27,12 +30,30 @@ def execute_command(command):
         _, _ = process.communicate()  # Clean up
         print("Command timed out")
         return None
+def ssh_execute_command(command, ssh_client):
+    """
+    Executes a command on the terminal and returns its output.
+    Waits for the command to complete or times out after 3 minutes.
+    """
+    try:
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate(timeout=180)  # Wait for up to 3 minutes
+        # if stderr:
+            # print("stderr: " + stderr)
+        # if stdout:
+            # print("stdout: " + stdout)
+        return stdout
+    except subprocess.TimeoutExpired:
+        process.kill()  # Ensure the process is terminated after timeout
+        _, _ = process.communicate()  # Clean up
+        print("Command timed out")
+        return None
     
 def search_exploits(quary):
     """
     Searches for exploits using searchsploit based on the kernel version.
     """
-    command = f"searchsploit {quary} --www"
+    command = f"searchsploit {quary} --www | grep -i privilege"
     output = execute_command(command)
     return output
 
@@ -59,7 +80,7 @@ def get_subfolder_name(list_of_vector):
     """
     # Define mappings for list_of_vector to subfolder names
     vector_to_subfolder = {
-        "Kernel": "kernel_exploits",
+        "Kernel": "Kernel_exploits",
         "SUID": "SUID_exploits",
         "SUDO": "Sudo_exploits"
         # Add more mappings as needed
@@ -147,13 +168,23 @@ def run_exploit(exploit_executable, vector, exploit_id):
         print(output)
     except Exception as e:
         print(f"Failed to run exploit {exploit_executable}: {e}")
+        
+def run_bash_exploit(exploit,ssh_client=None):
+    """
+    Runs the exploit command and checks if root access is gained.
+    """
+    try:
+        execute_command(exploit, ssh_client)
 
-def am_i_root():
-    if os.geteuid() == 0:
-        print("I am root now!")
-    else:
-        print("Still not root.")
-
+        # Check if the effective user ID is 0 (root)
+        print(execute_command("whoami"))
+        #     return True
+        # else:
+        #     return False
+    except Exception as e:
+        # Handle any exceptions that occur during the exploit execution
+        print(f"Error running exploit: {e}")
+        return False
 
 
 def parse_yaml_from_md(md_path):

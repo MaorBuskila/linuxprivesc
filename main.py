@@ -2,7 +2,14 @@ import subprocess
 import utils
 import paramiko
 
+import capabilities
+import kernel
+import sudo
+import suid
+import PATH
 
+user_choice =None
+ssh_client =None
 """
 ***************************************************************************************
 TODO:
@@ -59,7 +66,7 @@ def get_ssh_credentials():
     # ssh_host = input("Enter SSH host: ")
     # ssh_user = input("Enter SSH username: ")
     # ssh_password = input("Enter SSH password: ")
-    ssh_host = "10.10.241.63"
+    ssh_host = "10.10.198.27"
     ssh_user = "karen"
     ssh_password = "Password1"
     return ssh_host, ssh_user, ssh_password
@@ -94,29 +101,29 @@ def choose_attack_vectors():
     choice = input("Enter your choice (number or 'All'): ").strip()
     return choice
 
-def execute_vector_attack(choice):
+def execute_vector_attack(choice, ssh_client):
     if choice == "1":
         print("Executing Kernel attack vector...")
-        subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
-    # if choice == "2":
-    #     print("Executing Kernel attack vector...")
-    #     subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
-    # if choice == "3":
-    #     print("Executing Kernel attack vector...")
-    #     subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
+        kernel.main(ssh_client)
+    if choice == "2":
+        print("Executing Sudo attack vector...")
+        sudo.main(ssh_client)
+    if choice == "3":
+        print("Executing SUID attack vector...")
+        suid.main(ssh_client)
     if choice == "4":
         print("Executing capabilities attack vector...")
-        subprocess.run(["python3", "capabilities.py"])  # Replace "kernel_vector_script.py" with the actual script name
+        capabilities.main(ssh_client)
     # if choice == "5":
     #     print("Executing Kernel attack vector...")
-    #     subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
-    # if choice == "6":
-    #     print("Executing Kernel attack vector...")
-    #     subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
-    # if choice == "7":
-    #     print("Executing Kernel attack vector...")
-    #     subprocess.run(["python3", "kernel.py"])  # Replace "kernel_vector_script.py" with the actual script name
-    # Add elif blocks here for other vectors
+    #     cron_jobs.main(ssh_client)
+    if choice == "6":
+        print("Executing PATH attack vector...")
+        # PATH.main(ssh_client)
+    if choice == "7":
+        print("Executing NFS attack vector...")
+        # NFS.main(ssh_client)
+
     elif choice == "8" or choice.lower() == "all":
         print("Executing all attack vectors...")
         # Add calls to subprocess.run for each vector script
@@ -136,21 +143,18 @@ def main():
     # utils.iterate_and_convert_md_to_json(directory)
 
     user_choice = get_user_choice()
-
-    if user_choice == "2":
+    if user_choice == "1":
+        vector_choice = choose_attack_vectors()
+        execute_vector_attack(vector_choice, None)
+    elif user_choice == "2":
         ssh_host, ssh_user, ssh_password = get_ssh_credentials()
         ssh_client = get_ssh_connection(ssh_host, ssh_user, ssh_password)
         if ssh_client:
             vector_choice = choose_attack_vectors()
-            execute_vector_attack(vector_choice)
+            execute_vector_attack(vector_choice, ssh_client)
             ssh_client.close()
-        
-    elif user_choice != "1":
+    else:
         print("Invalid choice. Exiting.")
-        return
-
-    vector_choice = choose_attack_vectors()
-    execute_vector_attack(vector_choice)
 
 
 # Kernel

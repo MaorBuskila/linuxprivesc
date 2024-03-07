@@ -1,0 +1,5 @@
+----- Capabilities Report -----
+
+Capabilities setuid binaries:
+['/home/karen/vim', '/home/ubuntu/view']
+
